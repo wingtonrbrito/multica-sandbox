@@ -25,8 +25,11 @@ if [[ "${1:-}" == "--profile" && -n "${2:-}" ]]; then
 fi
 
 POLL_INTERVAL="${POLL_INTERVAL:-5}"
-STATE_DIR="${TMPDIR:-/tmp}/multica-watch-$$"
-mkdir -p "$STATE_DIR"
+# Use mktemp -d for safe per-run state dir (mode 0700, atomic create).
+# Earlier versions used "$TMPDIR/multica-watch-$$" which is unsafe on
+# shared-tmp Linux hosts (CWE-377/379/59 symlink-attack risk on the
+# trap'd `rm -rf` at exit). Caught by security-analyst on this very repo.
+STATE_DIR="$(mktemp -d -t multica-watch.XXXXXX)"
 trap 'rm -rf "$STATE_DIR"' EXIT
 
 AGENTS_FILE="$STATE_DIR/agents.json"

@@ -86,6 +86,18 @@ What's still empirically open:
 
 Will close out by running [Scenario 05 — Skill mutation](06-tested-scenarios.md#scenario-05--skill-mutation).
 
+## The agents found real bugs in this repo
+
+The most concrete signal of value: when I ran a FAN-OUT multi-analyst scenario against `multica-sandbox` itself (arch + security panel), both analysts found **real bugs** in the repo — not theatrical demo-grade issues.
+
+**security-analyst (LOW):** `scripts/multica-watch.sh:28-30` used `STATE_DIR="${TMPDIR:-/tmp}/multica-watch-$$"` followed by `mkdir -p` (no ownership check) and `trap 'rm -rf "$STATE_DIR"' EXIT`. On shared-tmp Linux hosts, an attacker who can race the PID can pre-create the directory containing symlinks; the EXIT trap may follow them for arbitrary deletion (CWE-377 / CWE-379 / CWE-59). **One-line fix:** swap to `mktemp -d -t multica-watch.XXXXXX`. Done.
+
+**arch-analyst (integrity):** `docs/02-cheatsheet.md:163` referenced `scripts/multica-clone-from-snapshot.py`, which doesn't exist in the tree. Forward reference / lost in commit reshuffle. **Fix:** rewrite the cheatsheet line to point at the trace-issue script as a template instead. Done.
+
+**synthesizer cross-cutting:** the two operational scripts (~200 LOC) concentrate almost ALL material findings from both lenses despite being a small minority of LOC. Recommendation: a single small "scripts-hardening" PR closes most residual risk. This is the cross-lens kind of insight you only get from synthesis on top of multiple analyses — not from any single analyst report.
+
+The chain found, classified (with full CWE references), and proposed one-line fixes for two real issues in 13m 32s. This is the value proposition of the platform in concrete form.
+
 ## Open questions worth bringing to the Multica team
 
 1. Is there a recommended pattern for setting `custom_env` programmatically? Or is UI-only intentional?

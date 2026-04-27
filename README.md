@@ -43,10 +43,10 @@ Every one of these took an hour or two to figure out. This repo is the writeup s
 
 - ✅ Self-host install + daemon dispatch + isolated workspace per task — works
 - ✅ End-to-end PR flow (DISPATCH → engineer → ADVANCE → QA Review → CLOSE) — verified, real GitHub artifacts
+- ✅ FAN-OUT multi-analyst (arch + security → synthesizer → CLOSE-MULTI) — verified, **the agents found and we fixed two real bugs in this very repo**
 - ✅ JSON contract handoff parses reliably; reassignment-as-wake works as designed
 - ✅ Cross-machine snapshot + clone is reliable (modulo `custom_env`)
 - 🟡 REVISE loop — orchestrator code path correct; Sonnet 4.6 hard to trip into it on diff-verifiable specs
-- 🟡 FAN-OUT multi-analyst — code path documented; testing in progress
 - ⏳ Skill mutation experiment — pending
 - ⏳ Edge cases (empty desc, malformed JSON, concurrent dispatch) — pending
 - ⏳ Upstream PRs — three identified, drafting

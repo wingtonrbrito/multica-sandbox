@@ -160,7 +160,7 @@ for agent in agents.json/*; do
 done
 ```
 
-A reusable Python version of this cloning is in `scripts/multica-clone-from-snapshot.py` in this repo.
+For a reusable Python version of this cloning loop, fork [the trace-issue script](../scripts/multica-trace-issue.py) — same shape (CLI subprocess + JSON args), different verb. (A standalone `multica-clone-from-snapshot.py` script may show up in this repo eventually; for now, the loop above is the canonical recipe.)
 
 ## Output formats
 

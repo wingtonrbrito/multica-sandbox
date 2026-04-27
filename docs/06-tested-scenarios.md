@@ -9,7 +9,7 @@ The full matrix of what I ran on self-host, what I observed, and what's still pe
 | 01 | Simple endpoint (engineer → QA approved) | ✅ Passed | 6m 11s | Sonnet 4.6 handles single-route Next.js trivially |
 | 02 | Strict RFC 7231 endpoint (HEAD/Allow/Vary) | ✅ Passed | 6m 35s | Even hardened criteria don't trip Sonnet 4.6 first try |
 | 03 | REVISE loop (force engineer revision) | 🟡 Pending | TBD | Need genuinely ambiguous spec or multi-file scope |
-| 04 | FAN-OUT multi-analyst panel | 🟡 Pending | TBD | `Analyst panel: arch, security, data` triggers parallel dispatch |
+| 04 | FAN-OUT multi-analyst panel | ✅ Passed | 13m 32s | Parallel dispatch + synthesizer worked end-to-end. Found 2 real bugs in this very repo. |
 | 05 | Skill mutation mid-flight | 🟡 Pending | TBD | Confirms workspace-level scoping; tests cache vs re-fetch |
 | 06 | Edge cases (empty desc, malformed, concurrent) | 🟡 Pending | TBD | Probes failure modes |
 
@@ -53,13 +53,15 @@ parent → [engineer] → ADVANCE → [qa-review] → CLOSE
 Will document the recipe that actually trips the loop in [`scenarios/03-revise-loop-recipe.md`](../scenarios/03-revise-loop-recipe.md).
 
 ### Scenario 04 — FAN-OUT multi-analyst
-**Status:** open. Plan:
-- Parent issue: "Review repo X for arch + security + data concerns"
-- Description includes `Analyst panel: arch, security, data` (case-insensitive prefix; this triggers FAN-OUT triage on the orchestrator)
-- Three sub-issues created in parallel
-- All three must complete before SYNTHESIZE-MULTI fires
-- Synthesizer combines findings into a unified report
-- CLOSE-MULTI closes the parent
+**Status:** ✅ Passed. 13m 32s end-to-end. arch-analyst + security-analyst dispatched in parallel; both completed before SYNTHESIZE-MULTI fired; synthesizer produced a unified Platform Analysis Report; CLOSE-MULTI closed everything.
+
+**Bugs the agents found in this very repo (and we fixed in the same commit):**
+1. **security-analyst** — `scripts/multica-watch.sh:28-30` used a predictable `$TMPDIR/multica-watch-$$` directory with a `trap 'rm -rf' EXIT`. On shared-tmp Linux hosts, this is CWE-377/379/59 symlink-attack vector. Fix: `mktemp -d`.
+2. **arch-analyst** — `docs/02-cheatsheet.md:163` referenced a non-existent `scripts/multica-clone-from-snapshot.py`. Phantom file. Fix: rewrite the reference.
+
+**Synthesizer cross-cutting insight:** the two operational scripts (~200 LOC) concentrate almost all material findings from both lenses, despite being a minority of repo LOC. Recommendation: a single small "scripts-hardening" PR closes most residual risk. This kind of cross-lens insight is what synthesis adds over reading individual analyst reports.
+
+Full results in [`scenarios/04-fan-out-multi-analyst.md`](../scenarios/04-fan-out-multi-analyst.md).
 
 ### Scenario 05 — Skill mutation
 **Status:** open. Hypothesis: skills are workspace-scoped resources fetched at dispatch time (NOT cached on the agent). Experiment design:
