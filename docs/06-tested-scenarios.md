@@ -10,7 +10,7 @@ The full matrix of what I ran on self-host, what I observed, and what's still pe
 | 02 | Strict RFC 7231 endpoint (HEAD/Allow/Vary) | ✅ Passed | 6m 35s | Even hardened criteria don't trip Sonnet 4.6 first try |
 | 03 | REVISE loop (force engineer revision) | 🟡 Pending | TBD | Need genuinely ambiguous spec or multi-file scope |
 | 04 | FAN-OUT multi-analyst panel | ✅ Passed | 13m 32s | Parallel dispatch + synthesizer worked end-to-end. Found 2 real bugs in this very repo. |
-| 05 | Skill mutation mid-flight | 🟡 Pending | TBD | Confirms workspace-level scoping; tests cache vs re-fetch |
+| 05 | Skill mutation mid-flight | ✅ Passed | <2 min | Empirically confirmed: workspace-scoped, fetched on every wake, no per-agent cache |
 | 06 | Edge cases (empty desc, malformed, concurrent) | 🟡 Pending | TBD | Probes failure modes |
 
 ## Detailed observations
@@ -64,15 +64,13 @@ Will document the recipe that actually trips the loop in [`scenarios/03-revise-l
 Full results in [`scenarios/04-fan-out-multi-analyst.md`](../scenarios/04-fan-out-multi-analyst.md).
 
 ### Scenario 05 — Skill mutation
-**Status:** open. Hypothesis: skills are workspace-scoped resources fetched at dispatch time (NOT cached on the agent). Experiment design:
+**Status:** ✅ Passed. Hypothesis confirmed empirically: skills are workspace-scoped, fetched fresh on every wake, no per-agent cache.
 
-1. Attach skill `X` to two agents A and B
-2. Fire issue assigned to A — captures pre-mutation behavior
-3. While issue is in-flight, modify skill `X` content
-4. Fire same issue type to B — should reflect new content
-5. (Optional) wake A again on a fresh issue — should also reflect new content
+**Method:** created `test-skill-v1` with content "always start your reply with BLUE", attached to two test agents (alice + bob), fired pre-mutation issues — both agents replied with "BLUE …". Then modified the skill content to "always start with RED" — did NOT touch the agents. Fired fresh issues — both agents replied with "RED …" within 30 seconds of the edit.
 
-Confirms or refutes whether skill content is cached per-process at dispatch time.
+**Implication:** hot-patching agent behavior across an entire workspace is one CLI call (`multica skill update <id> --content "..."`). Useful for emergency fixes. The flip side: there's no skill-version concept, no rollback unless you snapshot externally.
+
+Full results in [`scenarios/05-skill-mutation.md`](../scenarios/05-skill-mutation.md).
 
 ### Scenario 06 — Edge cases
 **Status:** open. Planned probes:

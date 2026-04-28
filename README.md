@@ -46,8 +46,8 @@ Every one of these took an hour or two to figure out. This repo is the writeup s
 - ✅ FAN-OUT multi-analyst (arch + security → synthesizer → CLOSE-MULTI) — verified, **the agents found and we fixed two real bugs in this very repo**
 - ✅ JSON contract handoff parses reliably; reassignment-as-wake works as designed
 - ✅ Cross-machine snapshot + clone is reliable (modulo `custom_env`)
+- ✅ **Skill scoping empirically resolved** — workspace-level, fetched fresh on every wake, no per-agent cache (closes a long-open architectural question)
 - 🟡 REVISE loop — orchestrator code path correct; Sonnet 4.6 hard to trip into it on diff-verifiable specs
-- ⏳ Skill mutation experiment — pending
 - ⏳ Edge cases (empty desc, malformed JSON, concurrent dispatch) — pending
 - ⏳ Upstream PRs — three identified, drafting
 

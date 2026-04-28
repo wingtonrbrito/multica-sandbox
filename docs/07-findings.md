@@ -80,11 +80,15 @@ From surface inspection of David's workspace + behavior on our clone:
 
 **Implication:** there is no per-agent private skill library. Adding a skill to an agent is an *assignment*, not a *scoping* operation. Modifying the skill changes it for every agent that references it.
 
-What's still empirically open:
-- Mid-flight task behavior — does an agent re-read skill content on every wake, or cache at dispatch time?
-- Skill version semantics — there's no `skill version` concept; modifications are in-place
+What was empirically open (now closed):
+- ~~Mid-flight task behavior — does an agent re-read skill content on every wake, or cache at dispatch time?~~
 
-Will close out by running [Scenario 05 — Skill mutation](06-tested-scenarios.md#scenario-05--skill-mutation).
+**Confirmed via [Scenario 05](../scenarios/05-skill-mutation.md):** skill content is fetched on every wake. No per-agent cache. Modifying a skill once propagates to every attached agent's next wake within seconds. Method: created a "always start with BLUE" skill, attached to two agents, both replied with "BLUE…" pre-mutation. Mutated the skill to "always start with RED" without touching the agents. Both agents' next wake replied with "RED…". The protocol re-reads on every dispatch.
+
+**Practical implications:**
+- Hot-patching skill behavior across the whole workspace is a single CLI call
+- There's no skill version history — `updated_at` timestamps but no rollback. Snapshot externally if you need it.
+- Mid-wake mutation behavior is untested (the agent's current run continues with the content it already read; only NEXT wake re-reads).
 
 ## The agents found real bugs in this repo
 
