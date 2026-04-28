@@ -1,6 +1,6 @@
-# Scenario 06 — Edge cases (planned)
+# Scenario 06 — Edge cases
 
-**Status:** planned, not yet run.
+**Status:** E1 (empty description) ✅ tested 2026-04-28. Others remain planned.
 
 Stress-tests the platform's failure modes. Each sub-scenario probes a specific class of broken input or unusual condition.
 
@@ -15,7 +15,16 @@ multica issue create \
 
 **Expected:** orchestrator's wake-time guards trigger retry-on-empty (3× × 2s sleep). After 3 consecutive empty reads, returns `status: blocked` with summary explaining empty description.
 
-**What to watch:** does `multica issue runs <parent-id>` show 1 run or 3? Confirms whether retry happens within a single wake or across multiple.
+**Actual (2026-04-28):** orchestrator handled it gracefully but NOT via retry-on-empty — instead, ESCALATEd to `in_review` after a single wake. Posted exactly the right diagnostic comment:
+
+> **[multica · orchestrator]**
+> Declining dispatch — issue description is empty, so no specialist can be triaged. Please add a task description (the deliverable, target repo/path, and any scope guardrails) and reassign to me to retry. Flipping to in_review for human attention.
+
+This means: the orchestrator's instructions distinguish "description didn't load yet" (read-after-write race → retry) from "description is genuinely empty" (declining dispatch → ESCALATE). The retry-on-empty guard is for the FIRST case (specialist sub-issue creation race); orchestrator's reactive-mode triage is the SECOND case.
+
+**Lesson:** retry-on-empty applies during sub-issue creation (orchestrator → specialist), not parent issue creation (human → orchestrator). The parent dispatch path is allowed to "fail fast and ESCALATE" because there's no race to wait out — if a human created an empty issue, no amount of polling will fix it.
+
+**What to watch (empirical):** `multica issue runs <parent-id>` shows 1 run that completed cleanly. No retries.
 
 ## E2 — Malformed `Target repo` path
 

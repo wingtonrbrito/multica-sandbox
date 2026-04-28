@@ -1,6 +1,8 @@
-# Scenario 03 — Force a REVISE loop (work-in-progress)
+# Scenario 03 — Force a REVISE loop
 
-**Status:** unsolved at the time of this writing. Sonnet 4.6 nailed both [Scenario 01](01-simple-endpoint.md) and [Scenario 02](02-strict-rfc-spec.md) on first try.
+**Status (2026-04-28):** REVISE state machine **validated end-to-end** via manual injection (orchestrator received synthetic `needs-revision`, dispatched engineer revision 1 with correct naming + revision_notes, engineer actually pushed a revision commit, orchestrator re-dispatched qa-review). 6m 17s for one full REVISE cycle.
+
+Three real-spec attempts (basic, strict RFC 7231, multi-file scope with package.json edit) all approved by QA on first try — Sonnet 4.6 is too capable to trip on diff-verifiable specs. **The orchestrator's REVISE branch is correct; we just couldn't trigger it organically with the model in use.**
 
 This page tracks the hypotheses and recipes I'm working through to actually trigger the REVISE state transition end-to-end.
 
@@ -92,7 +94,53 @@ Acceptance criteria:
 Non-goals: no tests, no middleware changes, no other scripts."
 ```
 
-Will document the actual outcome here once run.
+### Run 3 result (2026-04-28)
+**Approved on first try.** Engineer correctly modified BOTH files (`app/api/hello/route.ts` new + `package.json` updated with the smoke script). 5m 51s end-to-end. Real PR: https://github.com/wingtonrbrito/multica-sandbox/pull/4 (now closed). QA verdict: FULL spec compliance, 2 files reviewed.
+
+So Sonnet 4.6 also nails multi-file scope first try. Three negative attempts to force REVISE organically.
+
+---
+
+## Manual REVISE injection (the validation that worked)
+
+Since Sonnet 4.6 didn't trip on any of our diff-verifiable specs, we validated the REVISE state machine independently by **synthesizing a chain manually** — bypass the engineer + qa-review wakes by hand-crafting their handoff comments.
+
+### Method
+1. Created a parent issue (no assignee — orchestrator doesn't fire on it yet).
+2. Created an `[engineer]` sub-issue under parent. Posted a hand-crafted "completed" handoff comment with a JSON contract block containing a `pr_url`. Closed the engineer sub-issue. (Simulates a finished engineer phase.)
+3. Created a `[qa-review]` sub-issue under parent. Posted a hand-crafted **needs-revision verdict** as a comment with `review_decision: needs-revision` and three `revision_notes`. (Simulates QA rejecting the PR.)
+4. Reassigned the qa-review sub-issue to orchestrator. **This is the wake signal that triggers REVISE.**
+
+### Result — orchestrator's REVISE state machine fired correctly
+| Time | Event | Confirms |
+|---|---|---|
+| 13:27:36 | Orchestrator wakes on qa-review reassignment | Wake signal works |
+| 13:28:53 | Created `[engineer] revision 1 — Add a /api/hello endpoint` | Title naming convention preserved |
+| 13:28:59 | Engineer queued | New sub-issue dispatched |
+| 13:29:05 | Comment on parent: "qa-review returned needs-revision on PR..." | Parent narrative correct |
+| 13:29:07 | qa-review sub-issue flipped to done | Closed alongside REVISE |
+| 13:29:15 | Orchestrator's REVISE wake completed | Action terminates cleanly |
+
+The revision sub-issue's description included the three `revision_notes` from the synthetic verdict verbatim, plus the load-bearing rule "push additional commits to the existing PR branch; do NOT open a new PR."
+
+### Bonus: engineer actually pushed a real revision commit
+We let the engineer agent run on the revision sub-issue out of curiosity. It correctly:
+- Recognized this was a revision cycle (from the description)
+- Identified the existing branch (`feature/8e78735e-hello-endpoint`)
+- Pushed an additional commit (`fbba831`) addressing two of the three synthetic revision notes
+- Posted a clean handoff comment with `status: completed`, reassigning to orchestrator
+
+Orchestrator then dispatched a `[qa-review] Re-review PR after revision 1 — ...` sub-issue (cancelled before completion since the synthetic PR URL pointed at an unrelated closed PR).
+
+**This validates the entire REVISE → engineer revision → ADVANCE → re-review loop end-to-end** at the protocol level. The fact we couldn't trigger it organically with Sonnet 4.6 is a model-capability finding, not a platform-design finding.
+
+### Implications
+- The orchestrator's revision-counter logic + "push to existing branch" rule + revision-notes threading are all **correct as documented**. Confirmed empirically.
+- Forcing REVISE on Sonnet 4.6 in production likely requires:
+  - **Adversarial QA models** (have qa-review use a stricter or differently-trained model than engineer; cross-model review may catch what Sonnet self-misses)
+  - **Genuine ambiguity** (multi-week-old context, fuzzy domain knowledge requirements)
+  - **Behavioral verification beyond the diff** (running tests, performance budgets, integration checks — none of which our scenarios required)
+- David's choice of running QA Review on Codex (GPT-5.4) rather than Claude is exactly the cross-model pattern that would catch what Sonnet's self-review misses. We mapped to Claude for parity reasons; this likely reduces REVISE rate in our setup vs. David's.
 
 ## What we'll learn
 

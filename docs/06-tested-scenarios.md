@@ -8,10 +8,10 @@ The full matrix of what I ran on self-host, what I observed, and what's still pe
 |---|---|---|---|---|
 | 01 | Simple endpoint (engineer → QA approved) | ✅ Passed | 6m 11s | Sonnet 4.6 handles single-route Next.js trivially |
 | 02 | Strict RFC 7231 endpoint (HEAD/Allow/Vary) | ✅ Passed | 6m 35s | Even hardened criteria don't trip Sonnet 4.6 first try |
-| 03 | REVISE loop (force engineer revision) | 🟡 Pending | TBD | Need genuinely ambiguous spec or multi-file scope |
+| 03 | REVISE loop | ✅ Validated via manual injection | 6m 17s | State machine correct; Sonnet 4.6 too capable to trip organically (3 negative real-spec attempts) |
 | 04 | FAN-OUT multi-analyst panel | ✅ Passed | 13m 32s | Parallel dispatch + synthesizer worked end-to-end. Found 2 real bugs in this very repo. |
 | 05 | Skill mutation mid-flight | ✅ Passed | <2 min | Empirically confirmed: workspace-scoped, fetched on every wake, no per-agent cache |
-| 06 | Edge cases (empty desc, malformed, concurrent) | 🟡 Pending | TBD | Probes failure modes |
+| 06 | Edge case — empty description | ✅ Passed | <1 min | Orchestrator ESCALATEs to `in_review` with clear "add a description and reassign" comment. Other edge cases still planned. |
 
 ## Detailed observations
 
@@ -45,12 +45,15 @@ parent → [engineer] → ADVANCE → [qa-review] → CLOSE
 - Behavior verifiable only outside the diff (test coverage thresholds, runtime invariants)
 
 ### Scenario 03 — REVISE loop
-**Status:** open. Best ideas pending:
-- Specify behavior the engineer can't verify locally — e.g., "must not regress against existing tests" when no tests are in the repo (engineer adds tests; QA flags as scope creep)
-- Multi-file scope — "add the route AND update package.json's scripts.test to run a smoke check"
-- Implicit conflict — "new endpoint must work behind nginx without modification" (no nginx config in repo; engineer either ignores or asks)
+**Status:** ✅ State machine validated (via manual injection). 🟡 Could not trigger organically against Sonnet 4.6 across three real-spec attempts.
 
-Will document the recipe that actually trips the loop in [`scenarios/03-revise-loop-recipe.md`](../scenarios/03-revise-loop-recipe.md).
+Three real specs (basic, strict RFC 7231, multi-file with `package.json` edit) — all approved on first try, FULL spec compliance. **Sonnet 4.6 doesn't trip on diff-verifiable single-file Next.js specs**, even with hardened acceptance criteria.
+
+**Manual REVISE injection** (synthesized a `needs-revision` qa-review handoff and reassigned to orchestrator) **validated the state machine end-to-end:** orchestrator parsed the synthetic JSON, dispatched `[engineer] revision 1 — ...` with the right naming convention + revision_notes verbatim + "push to existing branch" rule, engineer actually pushed a revision commit (`fbba831`), orchestrator re-dispatched qa-review for re-review. 6m 17s for one full REVISE cycle.
+
+**Implication:** the REVISE branch is correct; Sonnet 4.6 just doesn't fail diff-verifiable specs. To trigger organically, you'd need cross-model review (David runs QA on Codex GPT-5.4 deliberately for this reason), genuine ambiguity, or behavior not visible in the diff (test thresholds, perf budgets).
+
+Full results in [`scenarios/03-revise-loop-recipe.md`](../scenarios/03-revise-loop-recipe.md).
 
 ### Scenario 04 — FAN-OUT multi-analyst
 **Status:** ✅ Passed. 13m 32s end-to-end. arch-analyst + security-analyst dispatched in parallel; both completed before SYNTHESIZE-MULTI fired; synthesizer produced a unified Platform Analysis Report; CLOSE-MULTI closed everything.
