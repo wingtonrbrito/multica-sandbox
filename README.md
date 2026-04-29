@@ -17,7 +17,8 @@ A hands-on research log of running [Multica](https://github.com/multica-ai/multi
 | [`docs/05-handoff-protocol.md`](docs/05-handoff-protocol.md) | The wake-on-assignment + JSON-tail-contract pattern that makes specialist agents composable |
 | [`docs/06-tested-scenarios.md`](docs/06-tested-scenarios.md) | Every scenario I ran, what happened, and what I learned |
 | [`docs/07-findings.md`](docs/07-findings.md) | Architectural confirmations, capability observations, platform gotchas, open questions |
-| [`docs/08-upstream-issues.md`](docs/08-upstream-issues.md) | Bugs and small enhancements I'm proposing back to upstream Multica |
+| [`docs/08-upstream-issues.md`](docs/08-upstream-issues.md) | Bugs and small enhancements I'm proposing back to upstream Multica (with diff sketches) |
+| [`UPSTREAM-CONTRIBUTIONS.md`](UPSTREAM-CONTRIBUTIONS.md) | **Live status table** of upstream PRs (filed / queued / not yet) + findings catalog. The quick-glance version of `docs/08`. |
 | [`scenarios/`](scenarios/) | Reproducible test recipes — copy/paste runbooks for each pattern |
 | [`scripts/`](scripts/) | Tooling I wrote and used: timeline renderer, live event watcher |
 | [`examples/`](examples/) | Real code an engineer agent produced, kept as artifacts of an actual run |
