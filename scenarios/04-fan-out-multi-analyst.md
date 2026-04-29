@@ -129,7 +129,7 @@ Four sub-issues, all with substantive comments:
 
 ### Real bugs the agents found
 
-**security-analyst (LOW-severity):** `scripts/multica-watch.sh:28-30` used `STATE_DIR="${TMPDIR:-/tmp}/multica-watch-$$"` followed by `mkdir -p` (no ownership check) and `trap 'rm -rf "$STATE_DIR"' EXIT`. On shared-tmp Linux hosts a same-host attacker who can race the PID can pre-create the dir with symlinks; the EXIT trap's `rm -rf` may follow them for arbitrary deletion (CWE-377 / CWE-379 / CWE-59). Fixed in the same session (`mktemp -d` swap).
+**security-analyst (LOW-severity):** `scripts/multica-watch.sh:28-30` used `STATE_DIR="${TMPDIR:-/tmp}/multica-watch-$$"` followed by `mkdir -p` (no ownership check) and `trap 'rm -rf "$STATE_DIR"' EXIT`. On shared-tmp Linux hosts a same-host attacker who can race the PID can pre-create the dir with symlinks; the EXIT trap's `rm -rf` may follow them for arbitrary deletion (CWE-377 / CWE-379 / CWE-59). Fixed in the same session (`mktemp -d` swap; commit `d7efe36`).
 
 **arch-analyst (integrity bug):** `docs/02-cheatsheet.md:163` referenced `scripts/multica-clone-from-snapshot.py`, which doesn't exist in the tree. Phantom file. Either lost in a commit reshuffle or a forward reference not labelled as such. Fixed in the same session (rewrote the line to point at the trace-issue script as a template).
 
