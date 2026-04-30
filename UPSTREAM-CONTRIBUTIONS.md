@@ -13,8 +13,8 @@ Updated whenever a PR moves through state.
 | 1 | `fix(cli): add --to flag to issue status (preserve positional form)` | [`multica-ai/multica`](https://github.com/multica-ai/multica) | [#1805](https://github.com/multica-ai/multica/pull/1805) | 🟢 Open — under review | `multica issue status` was the only CLI verb taking a target status that's positional-only. Every other surface uses `--to`/`--status`. Fully backward-compatible. |
 | 2 | `feat(cli): add --custom-env flag to agent create/update` | [`multica-ai/multica`](https://github.com/multica-ai/multica) | superseded | ⚪ Already shipped upstream (#1907 era) | Maintainers shipped this independently — went further with `--custom-env-stdin` and `--custom-env-file` for secret hygiene. Drop our queued patch. |
 | 3 | `feat(daemon): surface backend connectivity in daemon status` | [`multica-ai/multica`](https://github.com/multica-ai/multica) | [#1910](https://github.com/multica-ai/multica/pull/1910) | 🟢 Open — under review | When Docker backend goes down, daemon stays "running" but can't poll. Silent failure mode. New `backend_connectivity` field on `HealthResponse`; surfaces as `Backend:` line in `daemon status`. 4 new test cases. |
-| 4 | `feat: polyfill browser globals for Node MCP runtime` | [`kwhittenberger/huly-mcp-server`](https://github.com/kwhittenberger/huly-mcp-server) | _pending_ | 🟡 Filing today | The Huly api-client expects browser globals (`window`, `document`, `indexedDB`). A 30-line launcher shim makes the mcp boot in Node MCP-server contexts. Helps anyone running it against Huly Cloud. |
-| 5 | `feat: expose add_comment + list_issue_relations tools` | [`kwhittenberger/huly-mcp-server`](https://github.com/kwhittenberger/huly-mcp-server) | _pending_ | 🔴 Not yet | Closes Huly comment-writeback (orchestrator's `huly-writeback` skill needs `add_comment`) and `probe-repo-linkage` skill (needs `list_issue_relations`). |
+| 4 | `feat: add launch.mjs polyfill for Node MCP runtime` | [`kwhittenberger/huly-mcp-server`](https://github.com/kwhittenberger/huly-mcp-server) | [#2](https://github.com/kwhittenberger/huly-mcp-server/pull/2) | 🟢 Open — under review | The Huly api-client expects browser globals (`window`, `document`, `indexedDB`). A 56-line launcher shim makes the mcp boot in Node MCP-server contexts. Helps anyone running it against Huly Cloud. |
+| 5 | `feat: add add_comment + list_issue_relations tools` | [`kwhittenberger/huly-mcp-server`](https://github.com/kwhittenberger/huly-mcp-server) | [#3](https://github.com/kwhittenberger/huly-mcp-server/pull/3) | 🟢 Open — under review | Closes Huly comment-writeback (Multica orchestrator's `huly-writeback` skill needs `add_comment`) and `probe-repo-linkage`-style probe workflows (need `list_issue_relations`). Verified live against Huly Cloud. |
 
 **Status legend:**
 - 🟢 Open / merged — actively in upstream review or already landed
@@ -52,4 +52,4 @@ See [`docs/fork-strategy.md`](docs/fork-strategy.md) for the recipes (cherry-pic
 
 ---
 
-_Last updated: 2026-04-29_
+_Last updated: 2026-04-29 (4 PRs filed, 1 superseded by upstream)_
