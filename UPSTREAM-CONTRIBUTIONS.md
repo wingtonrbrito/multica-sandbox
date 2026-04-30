@@ -15,6 +15,7 @@ Updated whenever a PR moves through state.
 | 3 | `feat(daemon): surface backend connectivity in daemon status` | [`multica-ai/multica`](https://github.com/multica-ai/multica) | [#1910](https://github.com/multica-ai/multica/pull/1910) | 🟢 Open — under review | When Docker backend goes down, daemon stays "running" but can't poll. Silent failure mode. New `backend_connectivity` field on `HealthResponse`; surfaces as `Backend:` line in `daemon status`. 4 new test cases. |
 | 4 | `feat: add launch.mjs polyfill for Node MCP runtime` | [`kwhittenberger/huly-mcp-server`](https://github.com/kwhittenberger/huly-mcp-server) | [#2](https://github.com/kwhittenberger/huly-mcp-server/pull/2) | 🟢 Open — under review | The Huly api-client expects browser globals (`window`, `document`, `indexedDB`). A 56-line launcher shim makes the mcp boot in Node MCP-server contexts. Helps anyone running it against Huly Cloud. |
 | 5 | `feat: add add_comment + list_issue_relations tools` | [`kwhittenberger/huly-mcp-server`](https://github.com/kwhittenberger/huly-mcp-server) | [#3](https://github.com/kwhittenberger/huly-mcp-server/pull/3) | 🟢 Open — under review | Closes Huly comment-writeback (Multica orchestrator's `huly-writeback` skill needs `add_comment`) and `probe-repo-linkage`-style probe workflows (need `list_issue_relations`). Verified live against Huly Cloud. |
+| 6 | `feat: add assignee param to update_issue (resolve by email via Channel)` | [`kwhittenberger/huly-mcp-server`](https://github.com/kwhittenberger/huly-mcp-server) | [#4](https://github.com/kwhittenberger/huly-mcp-server/pull/4) | 🟢 Open — under review | Caught during the 2026-04-30 round-trip e2e: status flip on CLOSE worked, but Reviewer reassignment silently no-op'd because `update_issue` lacked an assignee parameter. Resolves email → Employee via Huly's Channel records. The orchestrator's assignment-failure-policy correctly fell back to status-flip-only and recorded a notes entry, so the chain succeeded — but the human reviewer never saw the ticket land in their queue. This PR fixes that. |
 
 **Status legend:**
 - 🟢 Open / merged — actively in upstream review or already landed
@@ -52,4 +53,16 @@ See [`docs/fork-strategy.md`](docs/fork-strategy.md) for the recipes (cherry-pic
 
 ---
 
-_Last updated: 2026-04-29 (4 PRs filed, 1 superseded by upstream)_
+_Last updated: 2026-04-30 (5 PRs open, 1 superseded by upstream)_
+
+## Adoption pass — 2026-04-30
+
+Walked through David's updated DD-Demo (re-snapshot at `docs/multica/david-snapshot/2026-04-29/`) and adopted his three big design shifts onto self-host:
+
+1. **Round-trip is a status-loop** (Backlog → Multica work → Todo + reassign to Reviewer). Not Huly-mediated PR creation as I had inferred from the Apr 29 meeting. Mirrored the `huly-scan` (8787 b → 13343 b) and `huly-writeback` (10866 b → 12942 b) skills.
+2. **Synthesizer-without-duplicate-issue** solved via race-tight pre-check + cancel-newer + a new `Orchestrator Sweep` autopilot for recovery audits. Mirrored both onto self-host (orchestrator instructions 45215 b → 54604 b, sweep autopilot created without trigger).
+3. **Predecessor-purge pattern** for autopilot tick-tracking issues. Wrote `ds-org-suite/scripts/multica-purge-huly-scans.py` and verified end-to-end (cleaned 213 stale `Huly Scan` tracking issues from the prior day's autopilot ticks).
+
+Round-trip runbook at `docs/multica/04-roundtrip-test.md` — describes the full Backlog → Todo + reassignment loop using the mirrored skills against the `multica-e2e-sandbox` Huly workspace.
+
+PR statuses unchanged since 4-29 except: PR #1805's frontend CI is currently failing on an unrelated `apps/web/login/page.test.tsx` timeout (likely flake — my change only touches `server/cmd/multica/cmd_issue.go`).
