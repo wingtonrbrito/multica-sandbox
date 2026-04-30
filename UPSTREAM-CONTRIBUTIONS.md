@@ -53,7 +53,13 @@ See [`docs/fork-strategy.md`](docs/fork-strategy.md) for the recipes (cherry-pic
 
 ---
 
-_Last updated: 2026-04-30 (5 PRs open, 1 superseded by upstream)_
+_Last updated: 2026-04-30 (5 PRs open, 1 superseded by upstream, 1 RFC filed as issue)_
+
+## Open RFCs (upstream issues)
+
+| # | Title | Repo | Issue # | Status | Why it matters |
+|---|---|---|---|---|---|
+| R1 | RFC: outbound webhooks on issue/run state transitions | [`multica-ai/multica`](https://github.com/multica-ai/multica) | [#1964](https://github.com/multica-ai/multica/issues/1964) | 🟢 Filed — awaiting maintainer feedback | Lets external systems (Huly, n8n, Slack) react to Multica state changes without polling AND without burning LLM tokens via orchestrator-driven writebacks. Reuses the existing internal `events.Bus`. |
 
 ## Adoption pass — 2026-04-30
 
