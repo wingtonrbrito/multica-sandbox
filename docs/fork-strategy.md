@@ -1,10 +1,19 @@
 # Fork Strategy
 
-How the [`wingtonrbrito/multica`](https://github.com/wingtonrbrito/multica) fork relates to upstream, where each branch lives, and how others (David, anyone else, future projects of yours) consume it.
+How our two forks relate to upstream, where each branch lives, and how others (David, anyone else, future projects of yours) consume them.
+
+We maintain forks of two repos, both following the same `main` + `feat/*` + `wingtonrbrito-customizations` pattern:
+
+- [`wingtonrbrito/multica`](https://github.com/wingtonrbrito/multica) — fork of `multica-ai/multica` (the AI-native task platform)
+- [`wingtonrbrito/huly-mcp-server`](https://github.com/wingtonrbrito/huly-mcp-server) — fork of `kwhittenberger/huly-mcp-server` (the Huly MCP server we use for Multica's `huly-scan` / `huly-writeback` skills)
+
+The TL;DR for both: **clone, check out `wingtonrbrito-customizations`, and you have a working build with all our open-PR patches included.**
 
 ---
 
-## The shape
+## Multica fork
+
+### The shape
 
 ```
 multica-ai/multica                (upstream — the official Multica repo)
@@ -110,6 +119,88 @@ This keeps the customizations branch focused on patches that genuinely live only
 
 ---
 
+## huly-mcp-server fork
+
+Same shape, smaller scope. The Huly MCP server is the bridge that lets Multica's `huly-scan` / `huly-writeback` skills read/write to Huly. We carry three patches against upstream `master`.
+
+### The shape
+
+```
+kwhittenberger/huly-mcp-server          (upstream — the official MCP server)
+        │
+        │ fork
+        ▼
+wingtonrbrito/huly-mcp-server           (our fork)
+        │
+        ├── master                                       ← tracks upstream/master exactly
+        ├── feat/node-runtime-polyfill                   ← branch backing PR #2
+        ├── feat/add-comment-and-list-relations          ← branch backing PR #3
+        ├── feat/update-issue-assignee                   ← branch backing PR #4
+        └── wingtonrbrito-customizations                 ← all three patches merged together
+```
+
+The canonical doc lives on the fork itself at [`CUSTOMIZATIONS.md`](https://github.com/wingtonrbrito/huly-mcp-server/blob/wingtonrbrito-customizations/CUSTOMIZATIONS.md).
+
+### What's on each branch
+
+| Branch | Purpose |
+|---|---|
+| `master` | Tracks `upstream/master`. No local mods. |
+| `feat/node-runtime-polyfill` | PR #2 — `launch.mjs` polyfill for Node-runtime browser globals. Adds `fake-indexeddb` dep. |
+| `feat/add-comment-and-list-relations` | PR #3 — adds `add_comment` and `list_issue_relations` tools. Adds `@hcengineering/chunter` dep. |
+| `feat/update-issue-assignee` | PR #4 — `update_issue(assignee="<email>")` resolves email → Employee via Channel. Adds `@hcengineering/contact` dep. |
+| `wingtonrbrito-customizations` | All three above, merged together on top of fresh `master`. |
+
+### Recipes for consuming this fork
+
+#### Want everything (stock + all 3 open patches)
+```bash
+git clone https://github.com/wingtonrbrito/huly-mcp-server
+cd huly-mcp-server
+git checkout wingtonrbrito-customizations
+npm install
+node launch.mjs
+```
+
+Set the same env vars upstream documents (`HULY_URL`, `HULY_EMAIL`, `HULY_PASSWORD`, `HULY_WORKSPACE`).
+
+#### Wire into Claude Code MCP config
+```jsonc
+{
+  "mcpServers": {
+    "huly": {
+      "command": "node",
+      "args": ["/absolute/path/to/huly-mcp-server/launch.mjs"],
+      "env": { "HULY_URL": "...", "HULY_EMAIL": "...", "HULY_PASSWORD": "...", "HULY_WORKSPACE": "..." }
+    }
+  }
+}
+```
+
+#### Cherry-pick just one feature
+Each `feat/*` branch is one commit on top of upstream `master`. Cherry-pick the SHA you want.
+
+### Sync cadence (huly-mcp-server)
+Same as multica — when upstream `master` advances:
+```bash
+cd /path/to/wingtonrbrito/huly-mcp-server
+git checkout master
+git fetch upstream master
+git merge --ff-only upstream/master
+git push origin master
+
+git checkout wingtonrbrito-customizations
+git rebase master
+git merge --no-ff feat/node-runtime-polyfill
+git merge --no-ff feat/add-comment-and-list-relations
+git merge --no-ff feat/update-issue-assignee
+git push --force-with-lease origin wingtonrbrito-customizations
+```
+
+When kwhittenberger merges one of our PRs, drop that branch from the merge graph and delete it.
+
+---
+
 ## Why this layout
 
 - **One repo, clear branch semantics.** No need for two separate forks.
@@ -121,5 +212,6 @@ This keeps the customizations branch focused on patches that genuinely live only
 
 ## Related
 
-- [`CUSTOMIZATIONS.md`](https://github.com/wingtonrbrito/multica/blob/wingtonrbrito-customizations/CUSTOMIZATIONS.md) on the fork — canonical source for what's currently on the customizations branch
+- [`wingtonrbrito/multica:CUSTOMIZATIONS.md`](https://github.com/wingtonrbrito/multica/blob/wingtonrbrito-customizations/CUSTOMIZATIONS.md) — canonical source for what's currently on the multica customizations branch
+- [`wingtonrbrito/huly-mcp-server:CUSTOMIZATIONS.md`](https://github.com/wingtonrbrito/huly-mcp-server/blob/wingtonrbrito-customizations/CUSTOMIZATIONS.md) — same for huly-mcp
 - [`UPSTREAM-CONTRIBUTIONS.md`](../UPSTREAM-CONTRIBUTIONS.md) — live status of PRs against upstream

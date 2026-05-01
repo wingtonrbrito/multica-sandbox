@@ -58,12 +58,14 @@ See [`docs/06-tested-scenarios.md`](docs/06-tested-scenarios.md) for the full ma
 
 ## Quick start (90-second version)
 
-If you just want a working chain on your machine:
+If you just want a working chain on your machine, **use our fork's `wingtonrbrito-customizations` branch**. It bundles all our open upstream PRs (`--to` flag for `issue status`, daemon backend connectivity, plus the Huly MCP fixes) so you don't have to wait for upstream merges.
 
 ```bash
-# 1. Run Multica self-host (Docker)
-git clone https://github.com/multica-ai/multica
-cd multica && make selfhost
+# 1. Run Multica self-host (Docker) — our fork with all open PRs included
+git clone https://github.com/wingtonrbrito/multica
+cd multica
+git checkout wingtonrbrito-customizations
+make dev                                         # auto-creates env, installs deps, starts DB, migrates, launches app
 
 # 2. Install + auth the CLI (separate terminal)
 brew install multica-ai/tap/multica
@@ -91,7 +93,33 @@ multica issue create \
 
 Open http://localhost:3000 in your browser and watch it run.
 
-For anything more interesting (multi-agent chains, GitHub PRs, etc.), see [`docs/01-quickstart.md`](docs/01-quickstart.md).
+> **Want stock upstream instead?** `git clone https://github.com/multica-ai/multica` — same setup, no fork patches. Use this if you want pure upstream behavior for comparison; use the fork above if you want the working version with our open PRs already merged in.
+
+### Wiring Huly into the orchestrator (full GitHub ↔ Huly ↔ Multica round trip)
+
+For the end-to-end loop where a Huly issue triggers a Multica chain, the chain creates a GitHub PR, and the orchestrator flips the Huly ticket back to `Todo` + reassigns to a Reviewer:
+
+```bash
+# 1. Clone our huly-mcp-server fork (includes assignee + add_comment + Node polyfill)
+git clone https://github.com/wingtonrbrito/huly-mcp-server
+cd huly-mcp-server
+git checkout wingtonrbrito-customizations
+npm install
+
+# 2. Set Huly env vars
+export HULY_URL=https://your-huly-host
+export HULY_EMAIL=...
+export HULY_PASSWORD=...
+export HULY_WORKSPACE=...
+
+# 3. Wire it into Claude Code MCP config (~/.claude/claude_desktop_config.json)
+#    or your runtime's mcp_config — see CUSTOMIZATIONS.md on the fork for the exact shape.
+node launch.mjs        # smoke-test: should connect and list workspaces
+```
+
+Then attach your Multica orchestrator to the `huly-scan` and `huly-writeback` skills (see the round-trip runbook for the complete flow).
+
+For anything more interesting (multi-agent chains, GitHub PRs, full Huly round trip, edge cases), see [`docs/01-quickstart.md`](docs/01-quickstart.md) and [`docs/fork-strategy.md`](docs/fork-strategy.md).
 
 ---
 

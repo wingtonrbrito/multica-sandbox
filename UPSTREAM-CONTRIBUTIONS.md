@@ -41,19 +41,43 @@ These are observations from running the platform end-to-end. Some become PRs, so
 
 ---
 
+## Consuming the working version today
+
+Until upstream merges these PRs, both forks expose a `wingtonrbrito-customizations` branch that bundles our open patches with the latest upstream so you get a working build in one checkout — on any device, any time:
+
+**Multica core:**
+```bash
+git clone https://github.com/wingtonrbrito/multica
+cd multica
+git checkout wingtonrbrito-customizations
+make dev
+```
+Includes: PR #1805 (`--to` flag) + PR #1910 (daemon backend connectivity). See [`CUSTOMIZATIONS.md`](https://github.com/wingtonrbrito/multica/blob/wingtonrbrito-customizations/CUSTOMIZATIONS.md) on the fork.
+
+**Huly MCP server:**
+```bash
+git clone https://github.com/wingtonrbrito/huly-mcp-server
+cd huly-mcp-server
+git checkout wingtonrbrito-customizations
+npm install
+node launch.mjs
+```
+Includes: PR #2 (Node-runtime polyfill) + PR #3 (`add_comment`/`list_issue_relations`) + PR #4 (assignee param). See [`CUSTOMIZATIONS.md`](https://github.com/wingtonrbrito/huly-mcp-server/blob/wingtonrbrito-customizations/CUSTOMIZATIONS.md) on the fork.
+
+Both branches are rebuilt on top of upstream `main`/`master` whenever upstream advances; force-pushed with `--force-with-lease`. When a PR lands upstream, the corresponding feature branch drops out of the merge graph on the next sync.
+
 ## How to follow upstream
 
 - **PR #1805's status** is the canonical signal for "are the maintainers receptive to small ergonomic fixes." If it lands cleanly, expect PR #2 and #3 to follow the same shape.
-- All our upstream branches live on the fork [`wingtonrbrito/multica`](https://github.com/wingtonrbrito/multica). Branch names follow `<type>/<scope>-<short-summary>` (e.g., `fix/cli-issue-status-to-flag`).
-- Long-lived customizations branch: [`wingtonrbrito/multica:wingtonrbrito-customizations`](https://github.com/wingtonrbrito/multica/tree/wingtonrbrito-customizations) — local patches that aren't (yet) upstream-bound.
+- All our upstream branches live on the forks. Branch names follow `<type>/<scope>-<short-summary>` (e.g., `fix/cli-issue-status-to-flag`).
 
 ## Want to consume our fork?
 
-See [`docs/fork-strategy.md`](docs/fork-strategy.md) for the recipes (cherry-pick a specific commit, fork our fork, add as remote, etc.).
+See [`docs/fork-strategy.md`](docs/fork-strategy.md) for the full recipes (cherry-pick a specific commit, fork our fork, add as remote, multi-project / multi-device reuse).
 
 ---
 
-_Last updated: 2026-04-30 (5 PRs open, 1 superseded by upstream, 1 RFC filed as issue)_
+_Last updated: 2026-05-01 (5 PRs open, 1 superseded by upstream, 1 RFC filed as issue; both forks now expose a `wingtonrbrito-customizations` branch that bundles all open patches with fresh upstream)_
 
 ## Open RFCs (upstream issues)
 
