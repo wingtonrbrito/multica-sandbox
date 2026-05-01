@@ -60,6 +60,12 @@ See [`docs/06-tested-scenarios.md`](docs/06-tested-scenarios.md) for the full ma
 
 If you just want a working chain on your machine, **use our fork's `wingtonrbrito-customizations` branch**. It bundles all our open upstream PRs (`--to` flag for `issue status`, daemon backend connectivity, plus the Huly MCP fixes) so you don't have to wait for upstream merges.
 
+> **Want it fully automated?** The repo ships a [`bootstrap.sh`](bootstrap.sh) that clones both forks, sets up the env, and brings the platform up. Run it from the directory where you want the two checkouts to live (e.g., `~/projects`):
+> ```bash
+> curl -fsSL https://raw.githubusercontent.com/wingtonrbrito/multica-sandbox/main/bootstrap.sh -o bootstrap.sh && bash bootstrap.sh
+> ```
+> Then jump to step 4 below for CLI auth + daemon. Full step-by-step guide: [`docs/01-quickstart.md`](docs/01-quickstart.md).
+
 ```bash
 # 1. Run Multica self-host (Docker) — our fork with all open PRs included
 git clone https://github.com/wingtonrbrito/multica
