@@ -102,6 +102,29 @@ The most concrete signal of value: when I ran a FAN-OUT multi-analyst scenario a
 
 The chain found, classified (with full CWE references), and proposed one-line fixes for two real issues in 13m 32s. This is the value proposition of the platform in concrete form.
 
+### F11 — `/api/autopilots` returns 500 on self-host (regression — date unknown)
+
+Discovered 2026-05-04 during a planned post-adoption regression test. Both `multica autopilot list` and `multica autopilot get <known-id>` fail consistently against self-host:
+
+```
+multica autopilot list   → 500 "failed to list autopilots"
+multica autopilot get X  → 404 "autopilot not found"  (for an ID confirmed in DB)
+```
+
+Same auth + workspace headers; sibling endpoints work fine (`/api/skills` 200, `/api/agents` 200, `/api/issues` 200). Verified the 2 autopilots (`Huly Scan`, `Orchestrator Sweep`) exist in the DB with the expected schema (every column the SELECT projects), correct `workspace_id`, status=active. Bouncing the backend container did not clear the failure. Only the `autopilots` route is affected.
+
+**Suspected causes (not yet confirmed):**
+- Backend swallows the underlying SQL error with a generic message — the actual pgx/sqlc error isn't visible in the response or stdout logs. Need request-scoped error logging in the handler or an `EnableLogging` build tag to surface it.
+- A recent rebase onto `upstream/main` may have introduced an autopilot schema/code drift our migrations didn't capture.
+
+**Impact:** blocks running E9/E10 edge-case probes (both rely on `autopilot list` to resolve IDs and `autopilot trigger` to fire). Direct DB inspection still works for diagnostic. Day-to-day reactive chains (orchestrator → engineer → qa) are unaffected — they don't use autopilot endpoints.
+
+**Workarounds:**
+- Resolve autopilot IDs via direct psql query against the `autopilot` table.
+- Trigger autopilots via `multica autopilot trigger <id>` (UNTESTED — may also fail; needs verification).
+
+**Worth filing upstream once the underlying error is identified.** May already be known to maintainers.
+
 ## Open questions worth bringing to the Multica team
 
 1. Is there a recommended pattern for setting `custom_env` programmatically? Or is UI-only intentional?
