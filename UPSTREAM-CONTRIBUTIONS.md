@@ -38,6 +38,10 @@ These are observations from running the platform end-to-end. Some become PRs, so
 | F5 | FAN-OUT chain found 2 real bugs in the showcase repo on its first run | Cross-lens synthesis adds value beyond individual analyst reports | Already-fixed in this repo |
 | F6 | REVISE state machine is correct (validated via manual injection) — but Sonnet 4.6 too capable to trip organically on diff-verifiable specs | Cross-model review pattern (Codex for QA, Claude for engineer) is the right design | Validates upstream design |
 | F7 | Read-after-write race + retry-on-empty guard is load-bearing | Without the 3-attempt retry, fresh sub-issues fail intermittently | Open question whether fixed in newer Multica versions |
+| **F8** | `kwhittenberger/huly-mcp-server`'s `update_issue` tool doesn't accept `assignee` param | CLOSE-phase status flip lands; Reviewer reassignment silently no-op's. Caught in 2026-04-30 round-trip e2e. The orchestrator's assignment-failure-policy fallback (status-flip + notes) handles cleanly so the chain doesn't break — but the human reviewer never sees the ticket land in their queue. | ✓ Filed as PR #4 (above) |
+| **F9** | Huly↔GH integration's reverse-sync overrides Huly assignee within seconds of CLOSE setting it correctly | **Distinct from F8** — F8 is tool-level (the tool can't set assignee); F9 is integration-level (the integration overrides assignee after we set it). Both real, neither substitutes the other. David shipped a Phase 4b orphan-assignee repair in the SWEEP procedure to compensate. | No PR — David's Phase 4b is the right shape; we don't run the Huly↔GH integration on self-host so the gap isn't active for us |
+| **F10** | Huly↔GH integration's comment mirror is partial on long chains — initial dispatch lands on GH, chain-end narrative drops | David shipped a `gh-chain-end-comment` skill that compensates by posting an explicit chain-end on both sides (GH issue + Huly ticket). The post-filter on `huly-for-github` author is the right call against `gh search issues` false positives. | No PR — same scope-conditional reasoning as F9 |
+| **F11** | `/api/autopilots` returns 500 on self-host (RESOLVED 2026-05-05) | Backend image went stale (built 4-21) while the database migrated forward to v067 — binary still SELECT'd dropped columns. The handler swallowed the underlying SQL error to a generic 500. Discovered while smoke-testing E9 against post-cascade self-host. | Resolved via `make selfhost-build`. Worth a tiny upstream PR adding `log.Err(err).Msg(...)` before the generic `writeError` in the autopilot handler so the underlying SQL error shows in stderr. Not yet filed. |
 
 ---
 
@@ -77,7 +81,7 @@ See [`docs/fork-strategy.md`](docs/fork-strategy.md) for the full recipes (cherr
 
 ---
 
-_Last updated: 2026-05-01 (5 PRs open, 1 superseded by upstream, 1 RFC filed as issue; both forks now expose a `wingtonrbrito-customizations` branch that bundles all open patches with fresh upstream)_
+_Last updated: 2026-05-08 (5 PRs open, 1 superseded by upstream, 1 RFC filed as issue; F8-F11 added; full Huly→Multica→GitHub round-trip verified live today with HULY-9 → DSO-5 → PR #5; both forks expose `wingtonrbrito-customizations` branches bundling all open patches.)_
 
 ## Open RFCs (upstream issues)
 
@@ -96,3 +100,41 @@ Walked through David's updated DD-Demo (re-snapshot at `docs/multica/david-snaps
 Round-trip runbook at `docs/multica/04-roundtrip-test.md` — describes the full Backlog → Todo + reassignment loop using the mirrored skills against the `multica-e2e-sandbox` Huly workspace.
 
 PR statuses unchanged since 4-29 except: PR #1805's frontend CI is currently failing on an unrelated `apps/web/login/page.test.tsx` timeout (likely flake — my change only touches `server/cmd/multica/cmd_issue.go`).
+
+## Adoption pass — 2026-05-01
+
+Re-snapshotted David's DD-Demo at 2026-05-01 and identified three new shifts since 4-29:
+
+1. **Phase 4b orphan-assignee repair** in orchestrator SWEEP procedure — fixes F9 (Huly↔GH integration reverse-sync overrides assignee). Anti-flap cooldown built in.
+2. **NEW skill `gh-chain-end-comment`** wired into orchestrator's CLOSE + CLOSE-multi-analyst paths — fixes F10 (partial-mirror failure on long chains).
+3. **Removed `data-analyst` agent + `data-layer-analysis` skill** (Snowflake cortex couldn't be targeted) with cascading triage / synthesizer / FAN-OUT validation updates.
+
+**Adoption decisions on self-host:**
+- ✓ Mirrored: data-analyst retirement, 4 clean-cascade skills (`analyst-handoff`, `arch-review`, `security-review`, `report-synthesis`), `probe-repo-linkage` cascade portion (Probe 4 surgically excised), synthesizer + orchestrator data-analyst cascade.
+- ✗ Skipped: Phase 4b orphan-assignee repair, `gh-chain-end-comment` skill, `probe-repo-linkage` Probe 4 — all integration-specific. Self-host doesn't run the Huly↔GH integration so the override and partial-mirror failures don't manifest.
+
+Apply tooling at `ds-suite/ds-org-suite/adoption-2026-05-01/apply.sh` with byte-count verification.
+
+## Live e2e validation — 2026-05-08
+
+Post-Docker-rebuild end-to-end run confirms the platform reproduces David's 5-04 design (with our skip decisions) and the round-trip works against real artifacts.
+
+```
+HULY-9 (Backlog, Reviewer: codingin30@gmail.com) — real Huly issue
+  ↓ Huly Scan autopilot tick (DSO-4)
+DSO-5 (Multica parent ingested with Huly: HULY-9 + Reviewer: shape)
+  ↓ orchestrator DISPATCH
+DSO-6 (engineer) → opened https://github.com/wingtonrbrito/multica-sandbox/pull/5 — real GitHub PR
+  ↓ orchestrator ADVANCE
+DSO-7 (qa-review) → APPROVED
+  ↓ orchestrator CLOSE → huly-writeback flips HULY-9 to Todo + reassigns to Reviewer
+DSO-5 done
+```
+
+Earlier the same day, a parallel non-Huly chain (DSO-1→DSO-3) opened [PR #4](https://github.com/wingtonrbrito/multica-sandbox/pull/4) and ran qa-review on it, also reaching CLOSE cleanly. Two real chains in one demo session.
+
+**What this proves end-to-end:**
+- Bootstrapping the platform from a clean Docker nuke takes ~60 minutes (`make selfhost-build` + clone-from-snapshot + apply our cascade)
+- Specialists are Huly-unaware; only the orchestrator has `mcp_config` for Huly
+- The handoff protocol (status-flip + reassign + JSON contract) wakes the next agent reliably across 3 specialist hops
+- Real GitHub PR creation, real QA approval, real Huly status writeback — all in ~10 minutes per chain
