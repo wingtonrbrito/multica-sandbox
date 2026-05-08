@@ -87,7 +87,7 @@ _Last updated: 2026-05-08 (5 PRs open, 1 superseded by upstream, 1 RFC filed as 
 
 | # | Title | Repo | Issue # | Status | Why it matters |
 |---|---|---|---|---|---|
-| R1 | RFC: outbound webhooks on issue/run state transitions | [`multica-ai/multica`](https://github.com/multica-ai/multica) | [#1964](https://github.com/multica-ai/multica/issues/1964) | 🟢 Filed — awaiting maintainer feedback | Lets external systems (Huly, n8n, Slack) react to Multica state changes without polling AND without burning LLM tokens via orchestrator-driven writebacks. Reuses the existing internal `events.Bus`. |
+| R1 | RFC: outbound webhooks on issue/run state transitions | [`multica-ai/multica`](https://github.com/multica-ai/multica) | [#1964](https://github.com/multica-ai/multica/issues/1964) | 🟢 **Maintainer reviewed 2026-05-06** — direction approved, asks for spec hardening + draft PR | Lets external systems (Huly, n8n, Slack) react to Multica state changes without polling AND without burning LLM tokens via orchestrator-driven writebacks. Reuses the existing internal `events.Bus`. **Maintainer (`Bohan-J`) called out 4 blocking concerns to fold into spec before draft-PR:** (1) align event-type names with the bus's actual published taxonomy (`task:*`, `issue:updated`, etc.) instead of inventing new ones; (2) add a persisted `webhook_deliveries` table for retries that survive restarts; (3) address SSRF (block private/loopback ranges + cloud metadata IPs at DNS-resolution time); (4) mint `Event.ID` at `Publish` time as UUIDv7. Plus 5 sharpening points (configurable pause threshold, deliveries-CLI body inclusion, retry timing) and 7 smaller items. Verdict: *"Convert to a draft PR — but with #1, #2, #3, #4 folded into the spec first."* |
 
 ## Adoption pass — 2026-04-30
 
