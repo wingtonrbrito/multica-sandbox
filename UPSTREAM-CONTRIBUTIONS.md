@@ -115,6 +115,17 @@ Re-snapshotted David's DD-Demo at 2026-05-01 and identified three new shifts sin
 
 Apply tooling at `ds-suite/ds-org-suite/adoption-2026-05-01/apply.sh` with byte-count verification.
 
+## Reactive bridges — 2026-05-08
+
+Wired two new autopilots on self-host to close the inbound-from-GitHub and PR-comment loops. Both are orchestrator-assigned with the procedure embedded in the autopilot description (no orchestrator instruction edit needed):
+
+| Autopilot | Purpose | How it works |
+|---|---|---|
+| **GitHub Issue Scan** | New GH issue → mirror to Huly → existing Huly Scan ingests into Multica | `gh issue list` filtered to label `multica-sandbox-task` or title prefix `[multica-bot]`. Idempotency-checks against Huly via `mcp__huly__list_issues` substring match. Creates Huly issues with `Reviewer:` + `GitHub: <url>` shape. Caps at 5 per tick. |
+| **PR Comment Watch** | New external comment on a chain-authored PR → dispatch revision engineer sub-issue | Enumerates Multica parents with PR URLs in description; runs `gh pr view` per PR; filters comments to last-60-min external authors (drops own engineer/qa/integration-mirror). Dispatches `[engineer] revision <N>` sub-issues with comment body verbatim + push-to-existing-branch instructions. Caps at 3 per tick. |
+
+Both intentionally chain into existing flows: Issue Scan creates Huly issues that Huly Scan picks up; Comment Watch dispatches sub-issues that the existing engineer handoff handles. No race-tight guards yet (both have manual-trigger only, no cron) — easy to attach a cron via the UI when ready for unattended runs.
+
 ## Live e2e validation — 2026-05-08
 
 Post-Docker-rebuild end-to-end run confirms the platform reproduces David's 5-04 design (with our skip decisions) and the round-trip works against real artifacts.
