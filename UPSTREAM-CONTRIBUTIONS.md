@@ -82,13 +82,14 @@ See [`docs/fork-strategy.md`](docs/fork-strategy.md) for the full recipes (cherr
 
 ---
 
-_Last updated: 2026-05-08 (6 PRs open including draft PR #2295 implementing RFC #1964 with all 16 maintainer review items folded in, 1 superseded by upstream, 1 RFC body revised in-place; F8-F11 added; full Huly→Multica→GitHub round-trip verified live earlier today with HULY-9 → DSO-5 → PR #5; both forks expose `wingtonrbrito-customizations` branches bundling all open patches.)_
+_Last updated: 2026-05-10 (6 PRs open including draft PR #2295 implementing RFC #1964; 2 RFCs open — #1964 (outbound, hardened + draft PR) and #2373 (NEW: inbound webhooks counterpart, addresses commitment items 3 + 5 natively); 1 PR superseded; F8-F11 in findings catalog. Tier 2 outbound consumer cookbook live at `docs/patterns/tier-2-consumers.md` — 9 recipes covering Twilio SMS, Resend, Postmark, Asana, Notion, Jira, Bitbucket, Teams, Google Chat. Both forks expose `wingtonrbrito-customizations` branches.)_
 
 ## Open RFCs (upstream issues)
 
 | # | Title | Repo | Issue # | Status | Why it matters |
 |---|---|---|---|---|---|
 | R1 | RFC: outbound webhooks on issue/run state transitions | [`multica-ai/multica`](https://github.com/multica-ai/multica) | [#1964](https://github.com/multica-ai/multica/issues/1964) | 🟢 **Spec hardened + draft PR open as [#2295](https://github.com/multica-ai/multica/pull/2295)** (2026-05-08) | Maintainer Bohan-J reviewed 2026-05-06 with 4 blocking + 5 sharpening + 7 smaller items. RFC body revised in-place to fold all of them in; draft PR #2295 closes all 16 with live-verified e2e on the load-bearing paths (SSRF block, real-bus-event delivery, auto-pause threshold, wildcard taxonomy pin, rotate-secret, drop-oldest overflow). |
+| R2 | RFC: inbound webhooks (external systems → Multica) | [`multica-ai/multica`](https://github.com/multica-ai/multica) | [#2373](https://github.com/multica-ai/multica/issues/2373) (NEW 2026-05-10) | 🟢 Filed — awaiting maintainer feedback | Counterpart to RFC #1964. Closes the LLM-token-cost concern for the GitHub Issue Scan + PR Comment Watch autopilots that currently poll on a cron-fired orchestrator wake. Inbound webhook receiver verifies HMAC, persists deliveries (replay-protected via `(provider_id, raw_event_id)` SQL unique constraint), routes provider+event_type pairs to internal Go handlers. v1 ships GitHub + generic providers (closes commitment items 3 + 5); Jira / Bitbucket / Huly / n8n documented as forward-compat in the same RFC so reviewers see the architecture is extensible. Token savings: ~95% on item 5, ~80% on item 3. |
 
 ## Adoption pass — 2026-04-30
 
