@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Upstream Contributions Tracker</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head><body>
+<h1 id="upstream-contributions">Upstream Contributions</h1>
+<p>Tracking table for issues found while running Multica end-to-end + the PRs we've opened against <a href="https://github.com/multica-ai/multica"><code>multica-ai/multica</code></a> and other relevant repos.</p>
+<p>Updated whenever a PR moves through state.</p>
+<hr />
+<h2 id="pr-status-table">PR status table</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Title</th>
+<th>Repo</th>
+<th>PR #</th>
+<th>Status</th>
+<th>Why it matters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>fix(cli): add --to flag to issue status (preserve positional form)</code></td>
+<td><a href="https://github.com/multica-ai/multica"><code>multica-ai/multica</code></a></td>
+<td><a href="https://github.com/multica-ai/multica/pull/1805">#1805</a></td>
+<td>🟢 Open — under review</td>
+<td><code>multica issue status</code> was the only CLI verb taking a target status that's positional-only. Every other surface uses <code>--to</code>/<code>--status</code>. Fully backward-compatible.</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>feat(cli): add --custom-env flag to agent create/update</code></td>
+<td><a href="https://github.com/multica-ai/multica"><code>multica-ai/multica</code></a></td>
+<td>superseded</td>
+<td>⚪ Already shipped upstream (#1907 era)</td>
+<td>Maintainers shipped this independently — went further with <code>--custom-env-stdin</code> and <code>--custom-env-file</code> for secret hygiene. Drop our queued patch.</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>feat(daemon): surface backend connectivity in daemon status</code></td>
+<td><a href="https://github.com/multica-ai/multica"><code>multica-ai/multica</code></a></td>
+<td><a href="https://github.com/multica-ai/multica/pull/1910">#1910</a></td>
+<td>🟢 Open — under review</td>
+<td>When Docker backend goes down, daemon stays "running" but can't poll. Silent failure mode. New <code>backend_connectivity</code> field on <code>HealthResponse</code>; surfaces as <code>Backend:</code> line in <code>daemon status</code>. 4 new test cases.</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>feat: add launch.mjs polyfill for Node MCP runtime</code></td>
+<td><a href="https://github.com/kwhittenberger/huly-mcp-server"><code>kwhittenberger/huly-mcp-server</code></a></td>
+<td><a href="https://github.com/kwhittenberger/huly-mcp-server/pull/2">#2</a></td>
+<td>🟢 Open — under review</td>
+<td>The Huly api-client expects browser globals (<code>window</code>, <code>document</code>, <code>indexedDB</code>). A 56-line launcher shim makes the mcp boot in Node MCP-server contexts. Helps anyone running it against Huly Cloud.</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>feat: add add_comment + list_issue_relations tools</code></td>
+<td><a href="https://github.com/kwhittenberger/huly-mcp-server"><code>kwhittenberger/huly-mcp-server</code></a></td>
+<td><a href="https://github.com/kwhittenberger/huly-mcp-server/pull/3">#3</a></td>
+<td>🟢 Open — under review</td>
+<td>Closes Huly comment-writeback (Multica orchestrator's <code>huly-writeback</code> skill needs <code>add_comment</code>) and <code>probe-repo-linkage</code>-style probe workflows (need <code>list_issue_relations</code>). Verified live against Huly Cloud.</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>feat: add assignee param to update_issue (resolve by email via Channel)</code></td>
+<td><a href="https://github.com/kwhittenberger/huly-mcp-server"><code>kwhittenberger/huly-mcp-server</code></a></td>
+<td><a href="https://github.com/kwhittenberger/huly-mcp-server/pull/4">#4</a></td>
+<td>🟢 Open — under review</td>
+<td>Caught during the 2026-04-30 round-trip e2e: status flip on CLOSE worked, but Reviewer reassignment silently no-op'd because <code>update_issue</code> lacked an assignee parameter. Resolves email → Employee via Huly's Channel records. The orchestrator's assignment-failure-policy correctly fell back to status-flip-only and recorded a notes entry, so the chain succeeded — but the human reviewer never saw the ticket land in their queue. This PR fixes that.</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>feat(webhooks): outbound HTTP webhooks on bus events (closes #1964)</code></td>
+<td><a href="https://github.com/multica-ai/multica"><code>multica-ai/multica</code></a></td>
+<td><strong><a href="https://github.com/multica-ai/multica/pull/2295">#2295</a></strong> (NEW 2026-05-08)</td>
+<td>🟢 <strong>Draft — folded in all 16 maintainer review items</strong></td>
+<td>Implements RFC #1964 in full. Two new tables (<code>webhook_subscription</code>, <code>webhook_delivery</code>), bus subscriber, per-workspace dispatcher, HMAC-SHA256 signing, SSRF protection (DNS-time deny + redirect re-check + env override), retry ladder 30s/2m/10m/1h/6h with 24h cap, auto-pause via configurable threshold w/ <code>webhook:auto_paused</code> event emit, per-subscription drop-oldest backpressure (cap 1000), <code>multica webhook</code> CLI mirroring autopilot surface. Every one of Bohan-J's 4 blocking concerns + 5 sharpening points + 7 smaller items closed; load-bearing paths (SSRF, real-bus-event, auto-pause, wildcard, rotate-secret, drop-oldest) all live-verified before draft submission. Lets external systems (Teams, Slack, n8n, custom dashboards) react to Multica state changes without polling AND without burning LLM tokens via orchestrator-driven writebacks.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Status legend:</strong></p>
+<ul>
+<li>🟢 Open / merged — actively in upstream review or already landed</li>
+<li>🟡 Drafted / filing — patch ready, PR not yet opened</li>
+<li>🔴 Not yet — needs work before filing</li>
+<li>⚪ Won't fix — declined or superseded</li>
+</ul>
+<hr />
+<h2 id="findings-catalog-informational-not-necessarily-prs">Findings catalog (informational, not necessarily PRs)</h2>
+<p>These are observations from running the platform end-to-end. Some become PRs, some are documentation gaps, some are intentional design choices worth knowing.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Finding</th>
+<th>Implication</th>
+<th>PR?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>F1</td>
+<td>Daemon strips <code>--mcp-config</code> from <code>agent.custom_args</code> (security feature)</td>
+<td>Use <code>agent.mcp_config</code> field instead; CLI has no flag for it (see PR #2 above)</td>
+<td>Indirectly via #2</td>
+</tr>
+<tr>
+<td>F2</td>
+<td>Engineer agents commit under wrong identity if repo-local git config is unset</td>
+<td>Multi-account developers leak the wrong author into PRs. Fix: <code>git config user.email</code> per cloned repo, or patch <code>feature-implementation</code> skill</td>
+<td>No (skill-content gap)</td>
+</tr>
+<tr>
+<td>F3</td>
+<td><code>agent skills set</code> is atomic full-replace (no <code>add</code>/<code>remove</code> verbs)</td>
+<td>Scripting partial skill updates requires read-modify-write</td>
+<td>Maybe (low priority)</td>
+</tr>
+<tr>
+<td>F4</td>
+<td>Skills are workspace-scoped, fetched on every wake, no per-agent cache</td>
+<td>Hot-patching across all attached agents is one CLI call. No skill-version concept; rollback requires external snapshot</td>
+<td>Resolved (informational)</td>
+</tr>
+<tr>
+<td>F5</td>
+<td>FAN-OUT chain found 2 real bugs in the showcase repo on its first run</td>
+<td>Cross-lens synthesis adds value beyond individual analyst reports</td>
+<td>Already-fixed in this repo</td>
+</tr>
+<tr>
+<td>F6</td>
+<td>REVISE state machine is correct (validated via manual injection) — but Sonnet 4.6 too capable to trip organically on diff-verifiable specs</td>
+<td>Cross-model review pattern (Codex for QA, Claude for engineer) is the right design</td>
+<td>Validates upstream design</td>
+</tr>
+<tr>
+<td>F7</td>
+<td>Read-after-write race + retry-on-empty guard is load-bearing</td>
+<td>Without the 3-attempt retry, fresh sub-issues fail intermittently</td>
+<td>Open question whether fixed in newer Multica versions</td>
+</tr>
+<tr>
+<td><strong>F8</strong></td>
+<td><code>kwhittenberger/huly-mcp-server</code>'s <code>update_issue</code> tool doesn't accept <code>assignee</code> param</td>
+<td>CLOSE-phase status flip lands; Reviewer reassignment silently no-op's. Caught in 2026-04-30 round-trip e2e. The orchestrator's assignment-failure-policy fallback (status-flip + notes) handles cleanly so the chain doesn't break — but the human reviewer never sees the ticket land in their queue.</td>
+<td>✓ Filed as PR #4 (above)</td>
+</tr>
+<tr>
+<td><strong>F9</strong></td>
+<td>Huly↔︎GH integration's reverse-sync overrides Huly assignee within seconds of CLOSE setting it correctly</td>
+<td><strong>Distinct from F8</strong> — F8 is tool-level (the tool can't set assignee); F9 is integration-level (the integration overrides assignee after we set it). Both real, neither substitutes the other. David shipped a Phase 4b orphan-assignee repair in the SWEEP procedure to compensate.</td>
+<td>No PR — David's Phase 4b is the right shape; we don't run the Huly↔︎GH integration on self-host so the gap isn't active for us</td>
+</tr>
+<tr>
+<td><strong>F10</strong></td>
+<td>Huly↔︎GH integration's comment mirror is partial on long chains — initial dispatch lands on GH, chain-end narrative drops</td>
+<td>David shipped a <code>gh-chain-end-comment</code> skill that compensates by posting an explicit chain-end on both sides (GH issue + Huly ticket). The post-filter on <code>huly-for-github</code> author is the right call against <code>gh search issues</code> false positives.</td>
+<td>No PR — same scope-conditional reasoning as F9</td>
+</tr>
+<tr>
+<td><strong>F11</strong></td>
+<td><code>/api/autopilots</code> returns 500 on self-host (RESOLVED 2026-05-05)</td>
+<td>Backend image went stale (built 4-21) while the database migrated forward to v067 — binary still SELECT'd dropped columns. The handler swallowed the underlying SQL error to a generic 500. Discovered while smoke-testing E9 against post-cascade self-host.</td>
+<td>Resolved via <code>make selfhost-build</code>. Worth a tiny upstream PR adding <code>log.Err(err).Msg(...)</code> before the generic <code>writeError</code> in the autopilot handler so the underlying SQL error shows in stderr. Not yet filed.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="consuming-the-working-version-today">Consuming the working version today</h2>
+<p>Until upstream merges these PRs, both forks expose a <code>wingtonrbrito-customizations</code> branch that bundles our open patches with the latest upstream so you get a working build in one checkout — on any device, any time:</p>
+<p><strong>Multica core:</strong></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/wingtonrbrito/multica</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> multica</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> checkout wingtonrbrito-customizations</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> dev</span></code></pre></div>
+<p>Includes: PR #1805 (<code>--to</code> flag) + PR #1910 (daemon backend connectivity). See <a href="https://github.com/wingtonrbrito/multica/blob/wingtonrbrito-customizations/CUSTOMIZATIONS.md"><code>CUSTOMIZATIONS.md</code></a> on the fork.</p>
+<p><strong>Huly MCP server:</strong></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/wingtonrbrito/huly-mcp-server</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> huly-mcp-server</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> checkout wingtonrbrito-customizations</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> install</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="ex">node</span> launch.mjs</span></code></pre></div>
+<p>Includes: PR #2 (Node-runtime polyfill) + PR #3 (<code>add_comment</code>/<code>list_issue_relations</code>) + PR #4 (assignee param). See <a href="https://github.com/wingtonrbrito/huly-mcp-server/blob/wingtonrbrito-customizations/CUSTOMIZATIONS.md"><code>CUSTOMIZATIONS.md</code></a> on the fork.</p>
+<p>Both branches are rebuilt on top of upstream <code>main</code>/<code>master</code> whenever upstream advances; force-pushed with <code>--force-with-lease</code>. When a PR lands upstream, the corresponding feature branch drops out of the merge graph on the next sync.</p>
+<h2 id="how-to-follow-upstream">How to follow upstream</h2>
+<ul>
+<li><strong>PR #1805's status</strong> is the canonical signal for "are the maintainers receptive to small ergonomic fixes." If it lands cleanly, expect PR #2 and #3 to follow the same shape.</li>
+<li>All our upstream branches live on the forks. Branch names follow <code>&lt;type&gt;/&lt;scope&gt;-&lt;short-summary&gt;</code> (e.g., <code>fix/cli-issue-status-to-flag</code>).</li>
+</ul>
+<h2 id="want-to-consume-our-fork">Want to consume our fork?</h2>
+<p>See <a href="docs/fork-strategy.md"><code>docs/fork-strategy.md</code></a> for the full recipes (cherry-pick a specific commit, fork our fork, add as remote, multi-project / multi-device reuse).</p>
+<hr />
+<p><em>Last updated: 2026-05-10 (6 PRs open including draft PR #2295 implementing RFC #1964; 2 RFCs open — #1964 (outbound, hardened + draft PR) and #2373 (NEW: inbound webhooks counterpart, addresses commitment items 3 + 5 natively); 1 PR superseded; F8-F11 in findings catalog. Tier 2 outbound consumer cookbook live at <code>docs/patterns/tier-2-consumers.md</code> — 9 recipes covering Twilio SMS, Resend, Postmark, Asana, Notion, Jira, Bitbucket, Teams, Google Chat. Both forks expose <code>wingtonrbrito-customizations</code> branches.)</em></p>
+<h2 id="open-rfcs-upstream-issues">Open RFCs (upstream issues)</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Title</th>
+<th>Repo</th>
+<th>Issue #</th>
+<th>Status</th>
+<th>Why it matters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R1</td>
+<td>RFC: outbound webhooks on issue/run state transitions</td>
+<td><a href="https://github.com/multica-ai/multica"><code>multica-ai/multica</code></a></td>
+<td><a href="https://github.com/multica-ai/multica/issues/1964">#1964</a></td>
+<td>🟢 <strong>Spec hardened + draft PR open as <a href="https://github.com/multica-ai/multica/pull/2295">#2295</a></strong> (2026-05-08)</td>
+<td>Maintainer Bohan-J reviewed 2026-05-06 with 4 blocking + 5 sharpening + 7 smaller items. RFC body revised in-place to fold all of them in; draft PR #2295 closes all 16 with live-verified e2e on the load-bearing paths (SSRF block, real-bus-event delivery, auto-pause threshold, wildcard taxonomy pin, rotate-secret, drop-oldest overflow).</td>
+</tr>
+<tr>
+<td>R2</td>
+<td>RFC: inbound webhooks (external systems → Multica)</td>
+<td><a href="https://github.com/multica-ai/multica"><code>multica-ai/multica</code></a></td>
+<td><a href="https://github.com/multica-ai/multica/issues/2373">#2373</a> (NEW 2026-05-10)</td>
+<td>🟢 Filed — awaiting maintainer feedback</td>
+<td>Counterpart to RFC #1964. Closes the LLM-token-cost concern for the GitHub Issue Scan + PR Comment Watch autopilots that currently poll on a cron-fired orchestrator wake. Inbound webhook receiver verifies HMAC, persists deliveries (replay-protected via <code>(provider_id, raw_event_id)</code> SQL unique constraint), routes provider+event_type pairs to internal Go handlers. v1 ships GitHub + generic providers (closes commitment items 3 + 5); Jira / Bitbucket / Huly / n8n documented as forward-compat in the same RFC so reviewers see the architecture is extensible. Token savings: ~95% on item 5, ~80% on item 3.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="adoption-pass--2026-04-30">Adoption pass — 2026-04-30</h2>
+<p>Walked through David's updated DD-Demo (re-snapshot at <code>docs/multica/david-snapshot/2026-04-29/</code>) and adopted his three big design shifts onto self-host:</p>
+<ol type="1">
+<li><strong>Round-trip is a status-loop</strong> (Backlog → Multica work → Todo + reassign to Reviewer). Not Huly-mediated PR creation as I had inferred from the Apr 29 meeting. Mirrored the <code>huly-scan</code> (8787 b → 13343 b) and <code>huly-writeback</code> (10866 b → 12942 b) skills.</li>
+<li><strong>Synthesizer-without-duplicate-issue</strong> solved via race-tight pre-check + cancel-newer + a new <code>Orchestrator Sweep</code> autopilot for recovery audits. Mirrored both onto self-host (orchestrator instructions 45215 b → 54604 b, sweep autopilot created without trigger).</li>
+<li><strong>Predecessor-purge pattern</strong> for autopilot tick-tracking issues. Wrote <code>ds-org-suite/scripts/multica-purge-huly-scans.py</code> and verified end-to-end (cleaned 213 stale <code>Huly Scan</code> tracking issues from the prior day's autopilot ticks).</li>
+</ol>
+<p>Round-trip runbook at <code>docs/multica/04-roundtrip-test.md</code> — describes the full Backlog → Todo + reassignment loop using the mirrored skills against the <code>multica-e2e-sandbox</code> Huly workspace.</p>
+<p>PR statuses unchanged since 4-29 except: PR #1805's frontend CI is currently failing on an unrelated <code>apps/web/login/page.test.tsx</code> timeout (likely flake — my change only touches <code>server/cmd/multica/cmd_issue.go</code>).</p>
+<h2 id="adoption-pass--2026-05-01">Adoption pass — 2026-05-01</h2>
+<p>Re-snapshotted David's DD-Demo at 2026-05-01 and identified three new shifts since 4-29:</p>
+<ol type="1">
+<li><strong>Phase 4b orphan-assignee repair</strong> in orchestrator SWEEP procedure — fixes F9 (Huly↔︎GH integration reverse-sync overrides assignee). Anti-flap cooldown built in.</li>
+<li><strong>NEW skill <code>gh-chain-end-comment</code></strong> wired into orchestrator's CLOSE + CLOSE-multi-analyst paths — fixes F10 (partial-mirror failure on long chains).</li>
+<li><strong>Removed <code>data-analyst</code> agent + <code>data-layer-analysis</code> skill</strong> (Snowflake cortex couldn't be targeted) with cascading triage / synthesizer / FAN-OUT validation updates.</li>
+</ol>
+<p><strong>Adoption decisions on self-host:</strong></p>
+<ul>
+<li>✓ Mirrored: data-analyst retirement, 4 clean-cascade skills (<code>analyst-handoff</code>, <code>arch-review</code>, <code>security-review</code>, <code>report-synthesis</code>), <code>probe-repo-linkage</code> cascade portion (Probe 4 surgically excised), synthesizer + orchestrator data-analyst cascade.</li>
+<li>✗ Skipped: Phase 4b orphan-assignee repair, <code>gh-chain-end-comment</code> skill, <code>probe-repo-linkage</code> Probe 4 — all integration-specific. Self-host doesn't run the Huly↔︎GH integration so the override and partial-mirror failures don't manifest.</li>
+</ul>
+<p>Apply tooling at <code>ds-suite/ds-org-suite/adoption-2026-05-01/apply.sh</code> with byte-count verification.</p>
+<h2 id="reactive-bridges--2026-05-08">Reactive bridges — 2026-05-08</h2>
+<p>Wired two new autopilots on self-host to close the inbound-from-GitHub and PR-comment loops. Both are orchestrator-assigned with the procedure embedded in the autopilot description (no orchestrator instruction edit needed):</p>
+<table>
+<thead>
+<tr>
+<th>Autopilot</th>
+<th>Purpose</th>
+<th>How it works</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GitHub Issue Scan</strong></td>
+<td>New GH issue → mirror to Huly → existing Huly Scan ingests into Multica</td>
+<td><code>gh issue list</code> filtered to label <code>multica-sandbox-task</code> or title prefix <code>[multica-bot]</code>. Idempotency-checks against Huly via <code>mcp__huly__list_issues</code> substring match. Creates Huly issues with <code>Reviewer:</code> + <code>GitHub: &lt;url&gt;</code> shape. Caps at 5 per tick.</td>
+</tr>
+<tr>
+<td><strong>PR Comment Watch</strong></td>
+<td>New external comment on a chain-authored PR → dispatch revision engineer sub-issue</td>
+<td>Enumerates Multica parents with PR URLs in description; runs <code>gh pr view</code> per PR; filters comments to last-60-min external authors (drops own engineer/qa/integration-mirror). Dispatches <code>[engineer] revision &lt;N&gt;</code> sub-issues with comment body verbatim + push-to-existing-branch instructions. Caps at 3 per tick.</td>
+</tr>
+</tbody>
+</table>
+<p>Both intentionally chain into existing flows: Issue Scan creates Huly issues that Huly Scan picks up; Comment Watch dispatches sub-issues that the existing engineer handoff handles. No race-tight guards yet (both have manual-trigger only, no cron) — easy to attach a cron via the UI when ready for unattended runs.</p>
+<h2 id="live-e2e-validation--2026-05-08">Live e2e validation — 2026-05-08</h2>
+<p>Post-Docker-rebuild end-to-end run confirms the platform reproduces David's 5-04 design (with our skip decisions) and the round-trip works against real artifacts.</p>
+<pre><code>HULY-9 (Backlog, Reviewer: codingin30@gmail.com) — real Huly issue
+  ↓ Huly Scan autopilot tick (DSO-4)
+DSO-5 (Multica parent ingested with Huly: HULY-9 + Reviewer: shape)
+  ↓ orchestrator DISPATCH
+DSO-6 (engineer) → opened https://github.com/wingtonrbrito/multica-sandbox/pull/5 — real GitHub PR
+  ↓ orchestrator ADVANCE
+DSO-7 (qa-review) → APPROVED
+  ↓ orchestrator CLOSE → huly-writeback flips HULY-9 to Todo + reassigns to Reviewer
+DSO-5 done</code></pre>
+<p>Earlier the same day, a parallel non-Huly chain (DSO-1→DSO-3) opened <a href="https://github.com/wingtonrbrito/multica-sandbox/pull/4">PR #4</a> and ran qa-review on it, also reaching CLOSE cleanly. Two real chains in one demo session.</p>
+<p><strong>What this proves end-to-end:</strong></p>
+<ul>
+<li>Bootstrapping the platform from a clean Docker nuke takes ~60 minutes (<code>make selfhost-build</code> + clone-from-snapshot + apply our cascade)</li>
+<li>Specialists are Huly-unaware; only the orchestrator has <code>mcp_config</code> for Huly</li>
+<li>The handoff protocol (status-flip + reassign + JSON contract) wakes the next agent reliably across 3 specialist hops</li>
+<li>Real GitHub PR creation, real QA approval, real Huly status writeback — all in ~10 minutes per chain</li>
+</ul>
+</body></html>
