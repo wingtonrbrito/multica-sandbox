@@ -57,7 +57,7 @@ cd multica
 git checkout wingtonrbrito-customizations
 make dev
 ```
-Includes: PR #1805 (`--to` flag) + PR #1910 (daemon backend connectivity). See [`CUSTOMIZATIONS.md`](https://github.com/wingtonrbrito/multica/blob/wingtonrbrito-customizations/CUSTOMIZATIONS.md) on the fork.
+Includes: PR #1805 (`--to` flag) + PR #1910 (daemon backend connectivity) + PR #2295 (outbound webhooks RFC #1964). See [`CUSTOMIZATIONS.md`](https://github.com/wingtonrbrito/multica/blob/wingtonrbrito-customizations/CUSTOMIZATIONS.md) on the fork.
 
 **Huly MCP server:**
 ```bash
